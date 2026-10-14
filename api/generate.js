@@ -110,7 +110,7 @@ and CapCut.
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-6-luna",
+          model: "gpt-4o-mini",
           input: prompt,
           max_output_tokens: 2500
         })
