@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FMS AI Drama Creator</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      color: #202536;
+    }
+    header {
+      background: #18243b;
+      color: white;
+      padding: 24px;
+    }
+    header h1 { margin: 0 0 8px; font-size: 25px; }
+    header p { margin: 0; color: #d4dbea; }
+    main { max-width: 760px; margin: 28px auto; padding: 0 16px; }
+    .panel {
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+      border: 1px solid #e2e5ed;
+      margin-bottom: 20px;
+    }
+    label { display: block; font-weight: bold; margin: 18px 0 8px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccd2df;
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    button {
+      margin-top: 20px;
+      padding: 13px 18px;
+      background: #365de6;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background: #294ac0; }
+    #output { white-space: pre-wrap; line-height: 1.6; }
+    .note { color: #646d7f; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FMS AI Drama Creator</h1>
+    <p>Turn Filipino family and financial realities into short-form drama ideas.</p>
+  </header>
+
+  <main>
+    <section class="panel">
+      <h2>Create your drama brief</h2>
+      <p class="note">
+        Start with a relatable situation. You will be able to refine
+        the story and generate complete scenes in a later step.
+      </p>
+
+      <label for="audience">Target audience</label>
+      <input id="audience" value="Young Filipino parents">
+
+      <label for="situation">Story situation or financial problem</label>
+      <textarea id="situation"
+        placeholder="Example: A working parent realizes the family has no emergency fund."></textarea>
+
+      <label for="emotion">Story emotion</label>
+      <select id="emotion">
+        <option>Relatable</option>
+        <option>Emotional</option>
+        <option>Suspenseful</option>
+        <option>Comedy</option>
+      </select>
+
+      <label for="duration">Video duration</label>
+      <select id="duration">
+        <option value="15">15 seconds</option>
+        <option value="30" selected>30 seconds</option>
+        <option value="60">60 seconds</option>
+      </select>
+
+      <label for="platform">Publishing platform</label>
+      <select id="platform">
+        <option>Facebook Reels</option>
+        <option>TikTok</option>
+        <option>YouTube Shorts</option>
+      </select>
+
+      <button onclick="createBrief()">Create Drama Brief</button>
+    </section>
+
+    <section class="panel">
+      <h2>Your drama brief</h2>
+      <p class="note">
+        This first version creates a structured brief in your browser.
+        AI generation is not connected yet.
+      </p>
+      <div id="output">Your drama brief will appear here.</div>
+      <button id="copyButton" onclick="copyBrief()" hidden>
+        Copy Drama Brief
+      </button>
+    </section>
+  </main>
+
+  <script>
+    function createBrief() {
+      const audience = document.getElementById("audience").value.trim();
+      const situation = document.getElementById("situation").value.trim();
+      const emotion = document.getElementById("emotion").value;
+      const duration = document.getElementById("duration").value;
+      const platform = document.getElementById("platform").value;
+
+      if (!audience || !situation) {
+        alert("Please enter your target audience and story situation.");
+        return;
+      }
+
+      const brief = `FMS AI DRAMA CREATOR — STORY BRIEF
+
+TARGET AUDIENCE:
+${audience}
+
+CORE STORY SITUATION:
+${situation}
+
+EMOTIONAL DIRECTION:
+${emotion}
+
+VIDEO LENGTH:
+${duration} seconds
+
+PLATFORM:
+${platform}
+
+STORY DEVELOPMENT FRAMEWORK:
+1. CHARACTER — Define consistent character appearance and identity.
+2. ACTION — Specify what each character does.
+3. EMOTION — Show feelings through expressions and behavior.
+4. LOCATION — Define the setting and maintain continuity.
+5. CAMERA ANGLE — Specify framing and camera movement.
+6. LIGHTING — Define the lighting and mood.
+7. VISUAL STYLE — Maintain a consistent cinematic style.
+
+PRODUCTION WORKFLOW:
+FLOW → SCRIPT → SCENES → CLIPS → EPISODE
+
+Create a relatable Filipino short drama with a strong opening hook,
+a believable conflict, an emotional or surprising payoff, and a
+natural ending suitable for ${platform}.
+
+Keep the story appropriate for ${duration} seconds.
+Avoid unsupported financial promises or misleading insurance claims.
+Prepare scene-by-scene prompts for Google Flow, with consistent
+characters and locations, plus a relevant call to action.`;
+
+      document.getElementById("output").textContent = brief;
+      document.getElementById("copyButton").hidden = false;
+    }
+
+    async function copyBrief() {
+      const text = document.getElementById("output").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Drama brief copied!");
+      } catch {
+        alert("Please select and copy the brief manually.");
+      }
+    }
+  </script>
+</body>
+</html>
