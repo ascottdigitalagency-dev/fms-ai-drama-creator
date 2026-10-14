@@ -114,19 +114,62 @@
   </main>
 
   <script>
-    function createBrief() {
-      const audience = document.getElementById("audience").value.trim();
-      const situation = document.getElementById("situation").value.trim();
-      const emotion = document.getElementById("emotion").value;
-      const duration = document.getElementById("duration").value;
-      const platform = document.getElementById("platform").value;
+    
+async function createBrief() {
+  const audience = document.getElementById("audience").value.trim();
+  const situation = document.getElementById("situation").value.trim();
+  const emotion = document.getElementById("emotion").value;
+  const duration = document.getElementById("duration").value;
+  const platform = document.getElementById("platform").value;
 
-      if (!audience || !situation) {
-        alert("Please enter your target audience and story situation.");
-        return;
-      }
+  const output = document.getElementById("output");
+  const button = document.querySelector(
+    'button[onclick="createBrief()"]'
+  );
 
-      const brief = `FMS AI DRAMA CREATOR — STORY BRIEF
+  if (!audience || !situation) {
+    alert("Please enter your target audience and story situation.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Generating your drama...";
+  output.textContent = "Please wait while AI creates your story.";
+
+  try {
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        audience,
+        situation,
+        emotion,
+        duration,
+        platform
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI generation failed.");
+    }
+
+    output.textContent = data.text;
+    document.getElementById("copyButton").hidden = false;
+
+  } catch (error) {
+    output.textContent = "Unable to generate your drama.\n\n" +
+      error.message +
+      "\n\nCheck your Vercel deployment and API configuration.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "Create Drama Brief";
+  }
+}
+
 
 TARGET AUDIENCE:
 ${audience}
