@@ -1,180 +1,453 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FMS AI Drama Creator</title>
+  <meta name="theme-color" content="#f7f5f0">
+  <title>FMS · AI Film Director</title>
   <style>
+    :root {
+      --paper: #f7f5f0;
+      --surface: #fffefa;
+      --surface-soft: #f0eee7;
+      --ink: #292821;
+      --muted: #77766d;
+      --line: #e5e1d7;
+      --accent: #bd6849;
+      --accent-dark: #9e5035;
+      --accent-pale: #f5e8df;
+      --green: #50765e;
+      --green-pale: #e7efe8;
+      --shadow: 0 12px 34px rgba(48, 42, 31, .055);
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-      color: #202536;
-    }
-    header {
-      background: #18243b;
-      color: white;
-      padding: 24px;
-    }
-    header h1 { margin: 0 0 8px; font-size: 25px; }
-    header p { margin: 0; color: #d4dbea; }
-    main { max-width: 760px; margin: 28px auto; padding: 0 16px; }
-    .panel {
-      background: white;
-      padding: 24px;
-      border-radius: 14px;
-      border: 1px solid #e2e5ed;
-      margin-bottom: 20px;
-    }
-    label { display: block; font-weight: bold; margin: 18px 0 8px; }
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccd2df;
-      border-radius: 8px;
-      font: inherit;
-      background: white;
-    }
-    textarea { min-height: 100px; resize: vertical; }
-    button {
-      margin-top: 20px;
-      padding: 13px 18px;
-      background: #365de6;
-      color: white;
-      border: 0;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover { background: #294ac0; }
-    button:disabled { opacity: 0.6; cursor: wait; }
-    #output { white-space: pre-wrap; line-height: 1.6; overflow-wrap: anywhere; }
-    .note { color: #646d7f; font-size: 14px; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.55; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { min-height: 68px; padding: 14px clamp(18px, 4vw, 52px); display: flex; justify-content: space-between; align-items: center; gap: 20px; border-bottom: 1px solid var(--line); background: rgba(255,254,250,.86); }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; background: var(--ink); color: #fffefa; font-family: var(--serif); font-size: 19px; }
+    .brand-name { font-size: 13px; font-weight: 750; letter-spacing: .025em; }
+    .brand-sub { color: var(--muted); font-size: 11px; margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 6px; }
+    .layout { width: min(1240px, 100%); margin: 0 auto; padding: 36px clamp(16px, 4vw, 48px) 60px; }
+    .intro { max-width: 780px; margin-bottom: 28px; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .14em; color: var(--accent-dark); font-size: 10px; font-weight: 800; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-family: var(--serif); font-size: clamp(32px, 4.5vw, 48px); line-height: 1.08; letter-spacing: -.04em; font-weight: 500; margin: 10px 0 12px; }
+    .intro p { max-width: 650px; color: var(--muted); font-size: 14px; margin: 0; }
+    .workspace { display: grid; grid-template-columns: 275px minmax(0, 1fr); align-items: start; gap: 20px; }
+    .sidebar, .main-panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .sidebar { padding: 18px 14px; position: sticky; top: 16px; }
+    .sidebar-head { padding: 0 7px 13px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .sidebar-head h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .09em; }
+    .project-list { display: grid; gap: 6px; }
+    .project-item { border: 1px solid transparent; background: transparent; border-radius: 10px; text-align: left; padding: 10px 11px; color: var(--ink); width: 100%; }
+    .project-item:hover { background: var(--surface-soft); }
+    .project-item.active { background: var(--accent-pale); border-color: #ecd2c4; }
+    .project-title { display: block; font-weight: 700; font-size: 12px; overflow-wrap: anywhere; }
+    .project-meta { display: block; color: var(--muted); font-size: 10px; margin-top: 3px; }
+    .sidebar-divider { height: 1px; background: var(--line); margin: 16px 0; }
+    .progress-label { display: flex; justify-content: space-between; gap: 8px; padding: 0 7px; color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+    .progress-track { height: 4px; border-radius: 99px; background: var(--surface-soft); overflow: hidden; margin: 0 7px 16px; }
+    .progress-fill { height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
+    .stage-list { display: grid; gap: 3px; }
+    .stage-button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; padding: 9px 8px; text-align: left; border-radius: 9px; color: var(--muted); }
+    .stage-button:hover:not(:disabled) { background: var(--surface-soft); color: var(--ink); }
+    .stage-button.active { background: #f6f0e8; color: var(--ink); }
+    .stage-button:disabled { opacity: .4; cursor: not-allowed; }
+    .stage-number { display: grid; place-items: center; flex: 0 0 24px; width: 24px; height: 24px; border: 1px solid #d9d5ca; border-radius: 50%; font-size: 10px; font-weight: 750; }
+    .stage-button.done .stage-number { background: var(--green-pale); border-color: #c9ddcc; color: var(--green); }
+    .stage-name { font-size: 11px; font-weight: 650; }
+    .side-note { color: var(--muted); font-size: 10px; padding: 13px 7px 0; }
+    .main-panel { overflow: hidden; min-width: 0; }
+    .panel-head { padding: 25px 28px 20px; border-bottom: 1px solid var(--line); }
+    .panel-head-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .panel-head h2 { font-family: var(--serif); font-size: 27px; line-height: 1.2; letter-spacing: -.025em; font-weight: 500; margin: 7px 0 8px; }
+    .panel-head p { color: var(--muted); max-width: 630px; font-size: 12px; margin: 0; }
+    .step-pill { white-space: nowrap; border: 1px solid var(--line); color: var(--muted); padding: 5px 9px; border-radius: 99px; font-size: 10px; }
+    .panel-body { padding: 24px 28px 28px; }
+    .brief-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .field { margin-bottom: 16px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    label { display: block; font-size: 11px; font-weight: 750; margin: 0 0 7px; }
+    .field-hint { display: block; color: var(--muted); font-size: 10px; font-weight: 400; margin-top: 3px; }
+    input, select, textarea { width: 100%; color: var(--ink); background: #fffefa; border: 1px solid #dcd8ce; border-radius: 9px; padding: 11px 12px; outline: none; transition: border-color .15s, box-shadow .15s; }
+    input:focus, select:focus, textarea:focus { border-color: #c98468; box-shadow: 0 0 0 3px rgba(189,104,73,.11); }
+    textarea { min-height: 112px; resize: vertical; }
+    .form-divider { border: 0; border-top: 1px solid var(--line); margin: 6px 0 20px; }
+    .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: .11em; color: var(--muted); font-weight: 800; margin: 0 0 12px; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-top: 18px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border-radius: 9px; border: 1px solid transparent; padding: 10px 14px; font-size: 12px; font-weight: 750; transition: transform .12s, background .12s; }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .btn-primary { background: var(--ink); color: white; }
+    .btn-primary:hover { background: #454236; }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { background: var(--accent-dark); }
+    .btn-secondary { background: var(--surface); border-color: #dcd8ce; color: var(--ink); }
+    .btn-secondary:hover { background: var(--surface-soft); }
+    .btn-quiet { background: transparent; color: var(--muted); border-color: transparent; padding-left: 8px; padding-right: 8px; }
+    .btn-quiet:hover { color: var(--ink); background: var(--surface-soft); }
+    .btn-small { padding: 7px 9px; font-size: 10px; }
+    .output-wrap { margin-top: 4px; }
+    .output-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .output-top h3 { margin: 0; font-size: 12px; }
+    .output-status { font-size: 10px; color: var(--muted); }
+    #output { min-height: 260px; max-height: 640px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.75; font-size: 12px; color: #39382f; background: #fbfaf6; border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+    #output.empty { color: #969287; font-style: italic; }
+    .approval-banner { display: none; background: var(--green-pale); border: 1px solid #d0dfd1; border-radius: 10px; padding: 11px 13px; color: #3c6548; font-size: 11px; margin-top: 12px; }
+    .approval-banner.visible { display: block; }
+    .alert { display: none; padding: 11px 13px; border-radius: 9px; font-size: 11px; margin: 12px 0; white-space: pre-wrap; }
+    .alert.visible { display: block; }
+    .alert.error { background: #f8e9e5; border: 1px solid #ebc7bd; color: #8d3e2c; }
+    .alert.info { background: var(--accent-pale); border: 1px solid #ecd2c4; color: #82482f; }
+    .tiny-note { color: var(--muted); font-size: 10px; margin: 14px 0 0; }
+    .footer { color: var(--muted); font-size: 10px; text-align: center; margin-top: 20px; }
+    .empty-projects { color: var(--muted); font-size: 11px; padding: 10px 7px; }
+    @media (max-width: 850px) { .workspace { grid-template-columns: 1fr; } .sidebar { position: static; } .stage-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stage-button { align-items: flex-start; } .side-note { padding-top: 10px; } }
+    @media (max-width: 560px) { .layout { padding-top: 24px; } .topbar { padding: 12px 16px; } .topbar-right { display: none; } .panel-head, .panel-body { padding: 20px 17px; } .panel-head h2 { font-size: 24px; } .brief-grid { grid-template-columns: 1fr; } .field.full { grid-column: auto; } .stage-list { grid-template-columns: 1fr 1fr; } .panel-head-top { gap: 8px; } .step-pill { font-size: 9px; } .button-row .btn { flex: 1 1 auto; } }
   </style>
 </head>
 <body>
-  <header>
-    <h1>FMS AI Drama Creator</h1>
-    <p>Turn Filipino family and financial realities into short-form drama ideas.</p>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">F</div>
+      <div><div class="brand-name">FMS · AI FILM DIRECTOR</div><div class="brand-sub">Short film production workspace</div></div>
+    </div>
+    <div class="topbar-right"><span><span class="status-dot"></span>Production workspace</span><span>·</span><span id="saveStatus">Local autosave on</span></div>
   </header>
 
-  <main>
-    <section class="panel">
-      <h2>Create your drama brief</h2>
-      <p class="note">
-        Describe your audience and story situation to generate a drama script
-        and scene prompts for Google Flow.
-      </p>
-
-      <label for="audience">Target audience</label>
-      <input id="audience" value="Young Filipino parents">
-
-      <label for="situation">Story situation or financial problem</label>
-      <textarea id="situation" placeholder="Example: A working parent realizes the family has no emergency fund."></textarea>
-
-      <label for="emotion">Story emotion</label>
-      <select id="emotion">
-        <option>Relatable</option>
-        <option selected>Emotional</option>
-        <option>Suspenseful</option>
-        <option>Comedy</option>
-      </select>
-
-      <label for="duration">Video duration</label>
-      <select id="duration">
-        <option value="15">15 seconds</option>
-        <option value="30" selected>30 seconds</option>
-        <option value="60">60 seconds</option>
-      </select>
-
-      <label for="platform">Publishing platform</label>
-      <select id="platform">
-        <option>Facebook Reels</option>
-        <option>TikTok</option>
-        <option>YouTube Shorts</option>
-      </select>
-
-      <button id="generateButton" onclick="createBrief()">Generate AI Drama</button>
+  <main class="layout">
+    <section class="intro">
+      <div class="eyebrow">From story idea to production-ready prompts</div>
+      <h1>Make the story work<br>before the camera rolls.</h1>
+      <p>A guided filmmaking workspace for building emotionally grounded stories, consistent characters, intentional shots, and connected AI-generated scenes.</p>
     </section>
 
-    <section class="panel">
-      <h2>Your AI-generated drama</h2>
-      <p class="note">Your generated script and scene prompts will appear below.</p>
-      <div id="output" aria-live="polite">Your AI drama will appear here.</div>
-      <button id="copyButton" onclick="copyBrief()" hidden>Copy Drama</button>
-    </section>
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-head"><h2>Your projects</h2><button class="btn btn-secondary btn-small" id="newProjectBtn" type="button">+ New</button></div>
+        <div class="project-list" id="projectList"><div class="empty-projects">Your projects will appear here.</div></div>
+        <div class="sidebar-divider"></div>
+        <div class="progress-label"><span>Production progress</span><span id="progressText">0 / 10</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <nav class="stage-list" id="stageList" aria-label="Production stages"></nav>
+        <div class="side-note">Approve each stage before moving forward. Your current project is saved in this browser.</div>
+      </aside>
+
+      <section class="main-panel">
+        <div class="panel-head">
+          <div class="panel-head-top">
+            <div><div class="eyebrow" id="stageEyebrow">Project brief</div><h2 id="stageTitle">Start with the story</h2><p id="stageDescription">Set up your project. The director will guide you through each production stage in order.</p></div>
+            <span class="step-pill" id="stepPill">Project setup</span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="briefForm">
+            <div class="section-label">Project details</div>
+            <div class="brief-grid">
+              <div class="field full"><label for="projectName">Project name</label><input id="projectName" maxlength="120" value="Untitled Short Film" placeholder="Give your film a working title"></div>
+              <div class="field"><label for="audience">Target audience</label><input id="audience" maxlength="200" value="Young Filipino parents" placeholder="Who should connect with this story?"></div>
+              <div class="field"><label for="emotion">Emotional direction</label><select id="emotion"><option>Relatable</option><option selected>Emotional</option><option>Suspenseful</option><option>Comedy</option></select></div>
+              <div class="field full"><label for="situation">Story situation or central conflict<span class="field-hint">Describe the real-life situation you want to dramatize.</span></label><textarea id="situation" maxlength="2000" placeholder="Example: A working parent realizes the family has no emergency fund when an unexpected expense arrives."></textarea></div>
+              <div class="field"><label for="duration">Target video duration</label><select id="duration"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="60">60 seconds</option></select></div>
+              <div class="field"><label for="platform">Publishing platform</label><select id="platform"><option>Facebook Reels</option><option>TikTok</option><option>YouTube Shorts</option></select></div>
+            </div>
+            <div class="button-row"><button class="btn btn-primary" id="startProjectBtn" type="button">Save brief & begin <span aria-hidden="true">→</span></button><button class="btn btn-quiet" id="deleteProjectBtn" type="button">Delete current project</button></div>
+            <p class="tiny-note">Prototype note: projects are saved to this browser's local storage, not a cloud database. Avoid entering sensitive personal information.</p>
+          </div>
+
+          <div id="stageWorkspace" hidden>
+            <div class="alert" id="alertBox" role="status"></div>
+            <div class="output-wrap">
+              <div class="output-top"><h3 id="outputHeading">Stage output</h3><span class="output-status" id="outputStatus">Not generated yet</span></div>
+              <div id="output" class="empty" aria-live="polite">Your stage output will appear here after you generate it.</div>
+              <div class="approval-banner" id="approvalBanner">This stage is approved. You can move to the next stage.</div>
+            </div>
+            <div class="button-row">
+              <button class="btn btn-accent" id="generateButton" type="button">Generate this stage</button>
+              <button class="btn btn-secondary" id="approveButton" type="button" disabled>Approve & continue →</button>
+              <button class="btn btn-secondary" id="copyButton" type="button" disabled>Copy output</button>
+              <button class="btn btn-quiet" id="editBriefBtn" type="button">Edit project brief</button>
+            </div>
+            <p class="tiny-note" id="stageHint">Review the output carefully before approving it. Approvals are recorded in this browser.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="footer">FMS AI Film Director · A guided creative production tool</div>
   </main>
 
   <script>
-    async function createBrief() {
-      const audience = document.getElementById("audience").value.trim();
-      const situation = document.getElementById("situation").value.trim();
-      const emotion = document.getElementById("emotion").value;
-      const duration = document.getElementById("duration").value;
-      const platform = document.getElementById("platform").value;
+    const STORAGE_KEY = "fms-ai-film-director-projects-v1";
+    const STAGES = [
+      { id: "story", name: "Story concept", title: "Find the story's emotional core", description: "Develop story options and choose a strong, relatable direction.", hint: "Choose the concept you want to develop. Edit the brief if the direction needs to change." },
+      { id: "script", name: "Script & timing", title: "Shape the story into scenes", description: "Build a concise script with realistic actions, dialogue, and clip timing.", hint: "Check the duration and dialogue. Each Google Flow clip must be no longer than 10 seconds." },
+      { id: "characters", name: "Character lock", title: "Make every character recognizable", description: "Define repeatable appearance, wardrobe, behavior, and voice details.", hint: "Approve only when the character descriptions are specific enough to reuse in every relevant prompt." },
+      { id: "locations", name: "Location & style lock", title: "Lock the visual world", description: "Establish location details, lighting, atmosphere, and the overall film look.", hint: "Check the layout and visual anchors so scenes in the same place remain consistent." },
+      { id: "continuity", name: "Continuity map", title: "Connect every scene", description: "Track screen direction, eyelines, props, matching action, and scene bridges.", hint: "The ending of each scene should match the next scene's opening unless a clear transition explains the change." },
+      { id: "shotPlan", name: "Cinematic shot plan", title: "Direct each shot with purpose", description: "Plan composition, camera angle, movement, blocking, lighting, and pacing.", hint: "Look for motivated camera choices, clear blocking, and actions that fit the clip duration." },
+      { id: "imagePrompts", name: "First-frame image prompts", title: "Design the starting frame", description: "Create a standalone image prompt for each shot's first frame.", hint: "Generate and review first-frame images in your image tool before producing video clips." },
+      { id: "videoPrompts", name: "Video prompts", title: "Bring each shot to life", description: "Create standalone prompts for connected, achievable video clips.", hint: "Generate clips in story order and use the approved first-frame image when your video tool supports it." },
+      { id: "qualityCheck", name: "Quality control", title: "Review before you assemble", description: "Use clear PASS, MINOR ISSUES, REVISE, or REGENERATE criteria.", hint: "The app cannot visually inspect your generated footage yet. Review each clip yourself against the checklist." },
+      { id: "editingPlan", name: "Editing & publishing", title: "Assemble the final story", description: "Plan CapCut assembly, sound, captions, pacing, and final export checks.", hint: "After editing, watch the full video with sound and without sound before publishing." }
+    ];
 
-      const output = document.getElementById("output");
-      const button = document.getElementById("generateButton");
-      const copyButton = document.getElementById("copyButton");
+    let projects = loadProjects();
+    let currentProjectId = null;
+    let currentStageIndex = 0;
+    let isGenerating = false;
 
-      if (!audience || !situation) {
-        alert("Please enter your target audience and story situation.");
-        return;
-      }
+    const $ = id => document.getElementById(id);
+    const fields = ["projectName", "audience", "situation", "emotion", "duration", "platform"];
 
-      button.disabled = true;
-      button.textContent = "Generating your drama...";
-      copyButton.hidden = true;
-      output.textContent = "Generating your AI drama. Please wait...";
-
+    function loadProjects() {
       try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(saved) ? saved : [];
+      } catch { return []; }
+    }
+    function saveProjects() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+        $("saveStatus").textContent = "Saved in this browser";
+      } catch {
+        $("saveStatus").textContent = "Could not save locally";
+        showAlert("Your browser could not save this project. Storage may be full or disabled. Copy important outputs before leaving this page.", "error");
+      }
+      renderProjectList();
+      renderProgress();
+    }
+    function makeProject() {
+      const now = new Date().toISOString();
+      return {
+        id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2),
+        name: "Untitled Short Film", audience: "Young Filipino parents", situation: "", emotion: "Emotional", duration: "30", platform: "Facebook Reels",
+        createdAt: now, updatedAt: now, currentStage: 0, outputs: {}, approved: {},
+      };
+    }
+    function getCurrentProject() { return projects.find(p => p.id === currentProjectId) || null; }
+    function ensureProject() {
+      let project = getCurrentProject();
+      if (!project) {
+        project = makeProject();
+        projects.unshift(project);
+        currentProjectId = project.id;
+      }
+      return project;
+    }
+    function collectBrief() {
+      return {
+        name: $("projectName").value.trim() || "Untitled Short Film",
+        audience: $("audience").value.trim(),
+        situation: $("situation").value.trim(),
+        emotion: $("emotion").value,
+        duration: $("duration").value,
+        platform: $("platform").value
+      };
+    }
+    function writeBrief(project) {
+      $("projectName").value = project.name || "Untitled Short Film";
+      $("audience").value = project.audience || "Young Filipino parents";
+      $("situation").value = project.situation || "";
+      $("emotion").value = project.emotion || "Emotional";
+      $("duration").value = String(project.duration || "30");
+      $("platform").value = project.platform || "Facebook Reels";
+    }
+    function persistBrief() {
+      const project = ensureProject();
+      Object.assign(project, collectBrief(), { updatedAt: new Date().toISOString() });
+      saveProjects();
+    }
+    function renderProjectList() {
+      const list = $("projectList");
+      list.replaceChildren();
+      if (!projects.length) {
+        const empty = document.createElement("div"); empty.className = "empty-projects"; empty.textContent = "Your projects will appear here."; list.appendChild(empty); return;
+      }
+      projects.slice().sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).forEach(project => {
+        const button = document.createElement("button"); button.type = "button"; button.className = "project-item" + (project.id === currentProjectId ? " active" : "");
+        const title = document.createElement("span"); title.className = "project-title"; title.textContent = project.name || "Untitled Short Film";
+        const meta = document.createElement("span"); meta.className = "project-meta"; const done = Object.values(project.approved || {}).filter(Boolean).length; meta.textContent = `${done}/10 stages approved`;
+        button.append(title, meta); button.addEventListener("click", () => openProject(project.id)); list.appendChild(button);
+      });
+    }
+    function renderProgress() {
+      const project = getCurrentProject();
+      const done = project ? Object.values(project.approved || {}).filter(Boolean).length : 0;
+      $("progressText").textContent = `${done} / ${STAGES.length}`;
+      $("progressFill").style.width = `${done / STAGES.length * 100}%`;
+    }
+    function canOpenStage(index, project) {
+      if (index === 0) return true;
+      for (let i = 0; i < index; i++) if (!project.approved[STAGES[i].id]) return false;
+      return true;
+    }
+    function renderStages() {
+      const project = getCurrentProject(); const nav = $("stageList"); nav.replaceChildren();
+      STAGES.forEach((stage, index) => {
+        const button = document.createElement("button"); button.type = "button";
+        button.className = "stage-button" + (index === currentStageIndex ? " active" : "") + (project?.approved?.[stage.id] ? " done" : "");
+        button.disabled = !project || !canOpenStage(index, project) || isGenerating;
+        const number = document.createElement("span"); number.className = "stage-number"; number.textContent = project?.approved?.[stage.id] ? "✓" : String(index + 1);
+        const name = document.createElement("span"); name.className = "stage-name"; name.textContent = stage.name;
+        button.append(number, name); button.addEventListener("click", () => { currentStageIndex = index; renderStage(); }); nav.appendChild(button);
+      });
+      renderProgress();
+    }
+    function showAlert(message, type = "info") {
+      const alert = $("alertBox"); alert.textContent = message; alert.className = `alert visible ${type}`;
+    }
+    function clearAlert() { $("alertBox").textContent = ""; $("alertBox").className = "alert"; }
+    function renderStage() {
+      const project = getCurrentProject();
+      if (!project) { $("briefForm").hidden = false; $("stageWorkspace").hidden = true; renderStages(); return; }
+      $("briefForm").hidden = true; $("stageWorkspace").hidden = false;
+      const stage = STAGES[currentStageIndex];
+      $("stageEyebrow").textContent = `Production stage ${currentStageIndex + 1}`;
+      $("stageTitle").textContent = stage.title;
+      $("stageDescription").textContent = stage.description;
+      $("stepPill").textContent = `Step ${currentStageIndex + 1} of ${STAGES.length}`;
+      $("outputHeading").textContent = stage.name;
+      $("stageHint").textContent = stage.hint;
+      const output = project.outputs[stage.id] || "";
+      $("output").textContent = output || "Your stage output will appear here after you generate it.";
+      $("output").classList.toggle("empty", !output);
+      $("outputStatus").textContent = project.approved[stage.id] ? "Approved" : output ? "Draft · review before approval" : "Not generated yet";
+      $("approvalBanner").classList.toggle("visible", !!project.approved[stage.id]);
+      $("approveButton").disabled = !output || !!project.approved[stage.id] || isGenerating;
+      $("approveButton").textContent = currentStageIndex === STAGES.length - 1 ? "Approve final stage ✓" : "Approve & continue →";
+      $("copyButton").disabled = !output || isGenerating;
+      $("generateButton").disabled = isGenerating;
+      $("generateButton").textContent = isGenerating ? "Working on this stage…" : output && !project.approved[stage.id] ? "Regenerate this stage" : project.approved[stage.id] ? "Regenerate (approval resets)" : "Generate this stage";
+      renderStages();
+    }
+    function showBrief() {
+      const project = getCurrentProject(); if (project) writeBrief(project);
+      $("stageWorkspace").hidden = true; $("briefForm").hidden = false;
+      $("stageEyebrow").textContent = "Project brief"; $("stageTitle").textContent = "Start with the story";
+      $("stageDescription").textContent = "Set up your project. The director will guide you through each production stage in order.";
+      $("stepPill").textContent = "Project setup";
+      renderStages();
+    }
+    function openProject(id) {
+      currentProjectId = id; const project = getCurrentProject(); if (!project) return;
+      currentStageIndex = Math.min(Number(project.currentStage || 0), STAGES.length - 1); writeBrief(project); renderProjectList();
+      if (project.situation) renderStage(); else showBrief();
+    }
+    function startOrSaveProject() {
+      const brief = collectBrief();
+      if (!brief.audience || !brief.situation) { alert("Please enter the target audience and story situation first."); return; }
+      const project = ensureProject();
+      const changed = project.audience !== brief.audience || project.situation !== brief.situation || project.emotion !== brief.emotion || project.duration !== brief.duration || project.platform !== brief.platform;
+      Object.assign(project, brief, { updatedAt: new Date().toISOString() });
+      if (changed) {
+        // If the brief changes, later-stage approvals may no longer be valid.
+        project.approved = {};
+        project.outputs = {};
+        project.currentStage = 0;
+        currentStageIndex = 0;
+      }
+      saveProjects(); renderStage();
+    }
+    async function generateCurrentStage() {
+      if (isGenerating) return;
+      const project = getCurrentProject(); const stage = STAGES[currentStageIndex];
+      if (!project) { showAlert("Please create or open a project first.", "error"); return; }
+      if (!project.audience || !project.situation) { showAlert("Please complete the project brief first.", "error"); return; }
+      if (!canOpenStage(currentStageIndex, project)) { showAlert("Approve the previous stage before generating this one.", "error"); return; }
+      isGenerating = true; clearAlert();
+      $("generateButton").disabled = true; $("generateButton").textContent = "Working on this stage…";
+      $("approveButton").disabled = true; $("copyButton").disabled = true;
+      $("output").classList.remove("empty"); $("output").textContent = "Developing this stage. This may take a little while…";
+      renderStages();
+      try {
+        const previousOutputs = {};
+        STAGES.slice(0, currentStageIndex).forEach(previousStage => {
+          if (project.outputs[previousStage.id]) previousOutputs[previousStage.id] = project.outputs[previousStage.id];
+        });
         const response = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            audience,
-            situation,
-            emotion,
-            duration,
-            platform
+            projectName: project.name,
+            audience: project.audience,
+            situation: project.situation,
+            emotion: project.emotion,
+            duration: project.duration,
+            platform: project.platform,
+            stage: stage.id,
+            previousOutputs
           })
         });
-
         const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "AI generation failed.");
-        }
-
-        if (!data.text) {
-          throw new Error("The API returned no generated text.");
-        }
-
-        output.textContent = data.text;
-        copyButton.hidden = false;
+        if (!response.ok) throw new Error(data.error || "AI generation failed.");
+        if (!data.text) throw new Error("The API returned no generated text.");
+        project.outputs[stage.id] = data.text;
+        project.approved[stage.id] = false;
+        // Regenerating a stage invalidates approvals and outputs after it.
+        STAGES.slice(currentStageIndex + 1).forEach(later => { delete project.outputs[later.id]; delete project.approved[later.id]; });
+        project.currentStage = currentStageIndex; project.updatedAt = new Date().toISOString(); saveProjects();
+        $("output").textContent = data.text; $("output").classList.remove("empty");
+        $("outputStatus").textContent = "Draft · review before approval";
+        $("approvalBanner").classList.remove("visible");
+        $("copyButton").disabled = false; $("approveButton").disabled = false;
+        showAlert("Draft generated. Review it carefully, then approve this stage to unlock the next one.", "info");
       } catch (error) {
-        output.textContent =
-          "Unable to generate your drama.\n\n" +
-          error.message +
-          "\n\nPlease check the API deployment and configuration.";
+        $("output").textContent = "Generation did not complete.";
+        $("output").classList.add("empty");
+        showAlert(`${error.message}\n\nCheck that this page is deployed with /api/generate and that OPENAI_API_KEY is set in Vercel's server-side environment variables.`, "error");
       } finally {
-        button.disabled = false;
-        button.textContent = "Generate AI Drama";
+        isGenerating = false; renderStage();
       }
     }
-
-    async function copyBrief() {
-      const text = document.getElementById("output").textContent;
-
-      try {
-        await navigator.clipboard.writeText(text);
-        alert("AI drama copied!");
-      } catch {
-        alert("Copying was blocked. Please select the generated text and copy it manually.");
+    function approveCurrentStage() {
+      const project = getCurrentProject(); const stage = STAGES[currentStageIndex];
+      if (!project || !project.outputs[stage.id]) return;
+      project.approved[stage.id] = true; project.updatedAt = new Date().toISOString();
+      if (currentStageIndex < STAGES.length - 1) { currentStageIndex += 1; project.currentStage = currentStageIndex; }
+      saveProjects(); renderStage();
+      if (currentStageIndex === STAGES.length - 1 && project.approved[stage.id]) {
+        showAlert("Final stage approved. You can revisit any completed stage from the workflow list.", "info");
       }
+    }
+    async function copyCurrentOutput() {
+      const project = getCurrentProject(); const stage = STAGES[currentStageIndex]; const text = project?.outputs?.[stage.id] || "";
+      if (!text) return;
+      try { await navigator.clipboard.writeText(text); showAlert("Stage output copied to clipboard.", "info"); }
+      catch { showAlert("Clipboard access was blocked. Select the output text and copy it manually.", "error"); }
+    }
+    function createNewProject() {
+      const project = makeProject(); projects.unshift(project); currentProjectId = project.id; currentStageIndex = 0;
+      saveProjects(); writeBrief(project); showBrief(); $("projectName").focus();
+    }
+    function deleteCurrentProject() {
+      const project = getCurrentProject(); if (!project) return;
+      if (!confirm(`Delete “${project.name || "Untitled Short Film"}” and its locally saved outputs? This cannot be undone.`)) return;
+      projects = projects.filter(p => p.id !== project.id); currentProjectId = projects[0]?.id || null; currentStageIndex = 0;
+      if (currentProjectId) openProject(currentProjectId); else { saveProjects(); createNewProject(); }
+    }
+
+    $("newProjectBtn").addEventListener("click", createNewProject);
+    $("startProjectBtn").addEventListener("click", startOrSaveProject);
+    $("deleteProjectBtn").addEventListener("click", deleteCurrentProject);
+    $("editBriefBtn").addEventListener("click", showBrief);
+    $("generateButton").addEventListener("click", generateCurrentStage);
+    $("approveButton").addEventListener("click", approveCurrentStage);
+    $("copyButton").addEventListener("click", copyCurrentOutput);
+    fields.forEach(id => $(id).addEventListener("change", () => {
+      const project = getCurrentProject(); if (!project || $("briefForm").hidden) return;
+      Object.assign(project, collectBrief(), { updatedAt: new Date().toISOString() }); saveProjects();
+    }));
+
+    if (projects.length) {
+      currentProjectId = projects[0].id; openProject(currentProjectId);
+    } else {
+      const project = makeProject(); projects.push(project); currentProjectId = project.id; writeBrief(project); saveProjects(); showBrief();
     }
   </script>
 </body>
